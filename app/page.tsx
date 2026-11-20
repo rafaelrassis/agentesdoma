@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { createOrder, logout, toggleColetorCloud } from "./actions";
+import { AutoRefresh } from "./auto-refresh";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-neutral-950 px-4 py-8 text-neutral-100">
+      <AutoRefresh />
       <div className="mx-auto max-w-5xl space-y-8">
         <header className="flex items-center justify-between">
           <div>
