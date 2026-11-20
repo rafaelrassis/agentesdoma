@@ -1,30 +1,113 @@
 @import "tailwindcss";
 
+/* Doma Dashboard — tokens.
+   Toda cor, raio e fonte do painel sai daqui. Nenhum `neutral-*`, `rose-*` ou
+   `zinc-*` cru nos componentes: se precisar de um tom novo, adicione um token. */
+
+@theme {
+  /* superfícies */
+  --color-canvas: #0b0c0f;
+  --color-surface: #13161b;
+  --color-raised: #1b1f26;
+  --color-sunken: #0e1115;
+
+  /* bordas */
+  --color-line: #22262e;
+  --color-line-strong: #2b313b;
+
+  /* texto — ink-faint é o piso de contraste (~5.6:1 sobre surface) */
+  --color-ink-strong: #f7f8fa;
+  --color-ink: #ecedef;
+  --color-ink-muted: #949ba7;
+  --color-ink-faint: #868d99;
+
+  /* marca — brand com texto branco dá 5.4:1 */
+  --color-brand: #d62f6b;
+  --color-brand-hover: #e0457a;
+  --color-brand-soft: #ff80a8;
+
+  /* estados: dot / texto / fundo / borda */
+  --color-ok: #34d399;
+  --color-ok-fg: #6ee7a8;
+  --color-ok-bg: #0f2a1f;
+  --color-ok-line: #2a6348;
+
+  --color-warn: #fbbf24;
+  --color-warn-fg: #fbcf6b;
+  --color-warn-bg: #2a2110;
+  --color-warn-line: #6b5424;
+
+  --color-run: #60a5fa;
+  --color-run-fg: #8ec6ff;
+  --color-run-bg: #0e2232;
+  --color-run-line: #2b5578;
+
+  --color-fail: #f87171;
+  --color-fail-fg: #ff9c9c;
+  --color-fail-bg: #2b1317;
+  --color-fail-line: #6e2a32;
+
+  --color-block: #ff8fad;
+  --color-block-fg: #ffc9d8;
+  --color-block-bg: #1a0e13;
+  --color-block-line: #5e2230;
+
+  --color-idle: #5a616d;
+  --color-idle-fg: #a9b0bb;
+  --color-idle-bg: #15181e;
+  --color-idle-line: #2b313b;
+
+  /* forma — uma escala, sem exceções */
+  --radius-control: 10px;
+  --radius-chip: 12px;
+  --radius-card: 14px;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
 :root {
-  --background: #0a0a0b;
-  --foreground: #f4f4f5;
   color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
 html {
-  background: var(--background);
+  background: var(--color-canvas);
 }
 
 body {
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(244, 63, 94, 0.08), transparent),
-    var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* números, datas, ids e caminhos nunca dançam entre refreshes */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--color-ink-muted);
 }
 
 ::selection {
-  background: rgba(244, 63, 94, 0.3);
+  background: color-mix(in oklab, var(--color-brand) 40%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-brand-soft);
+  outline-offset: 2px;
+}
+
+/* o chevron padrão do <details> não combina com os summaries de uma linha */
+summary {
+  list-style: none;
+}
+summary::-webkit-details-marker {
+  display: none;
 }
