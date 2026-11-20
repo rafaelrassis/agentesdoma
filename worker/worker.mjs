@@ -83,7 +83,10 @@ async function api(path, options = {}) {
 }
 
 function runClaude(prompt, model) {
-  const args = ["-p", prompt, "--permission-mode", PERMISSION_MODE];
+  // --chrome: sem isso o Claude in Chrome nunca conecta num `claude -p` disparado
+  // por subprocesso (confirmado por diagnóstico: mcp_servers só traz claude-in-chrome
+  // "connected" quando a flag é passada). O coletor depende disso pra coletar na Shopee.
+  const args = ["-p", prompt, "--permission-mode", PERMISSION_MODE, "--chrome"];
   if (model) args.push("--model", model);
   return new Promise((resolve) => {
     execFile(
