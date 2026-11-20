@@ -26,7 +26,7 @@ Os agentes (`CLAUDE.md`, `.claude/agents/`, `data/`, `worker/`) vivem neste mesm
 
 ## Rotinas
 
-Em `/rotinas` dá pra cadastrar uma rotina (agente + prompt + destino + frequência em dias). Um cron na Vercel (`vercel.json`, `/api/cron/routines`, roda a cada hora) confere quais rotinas estão vencidas e cria uma ordem normal na fila pra elas — mesmo fluxo de "Nova ordem" do painel. Cada execução ainda passa pelas regras do agente (`CLAUDE.md`), incluindo o congelamento de 14 dias: a rotina só dispara o agente, ela não ignora as regras dele.
+Em `/rotinas` dá pra cadastrar uma rotina (agente + prompt + destino + frequência em dias). Um cron na Vercel (`vercel.json`, `/api/cron/routines`, roda 1x/dia — limite do plano Hobby) confere quais rotinas estão vencidas e cria uma ordem normal na fila pra elas — mesmo fluxo de "Nova ordem" do painel. Cada execução ainda passa pelas regras do agente (`CLAUDE.md`), incluindo o congelamento de 14 dias: a rotina só dispara o agente, ela não ignora as regras dele.
 
 ## Desenvolvimento
 

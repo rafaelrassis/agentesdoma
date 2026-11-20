@@ -123,8 +123,9 @@ export default async function Rotinas() {
         </section>
 
         <p className="text-xs text-neutral-500">
-          Um cron na Vercel confere a cada hora quais rotinas estão vencidas e cria uma ordem pra
-          elas (mesma fila de "Nova ordem" no painel). Cada agente segue as regras do{" "}
+          Um cron na Vercel confere 1x/dia (limite do plano Hobby) quais rotinas estão vencidas e
+          cria uma ordem pra elas (mesma fila de "Nova ordem" no painel). Cada agente segue as
+          regras do{" "}
           <code>CLAUDE.md</code> — inclusive o congelamento de 14 dias.
         </p>
       </div>
