@@ -93,9 +93,6 @@ const AUTO_ALLOWED_TOOLS = [
   "mcp__claude-in-chrome__computer",
   "mcp__claude-in-chrome__tabs_create_mcp",
   "mcp__claude-in-chrome__tabs_context_mcp",
-  // o agente login-check reporta o resultado pro painel com um curl — sem isso,
-  // o comando fica pendurado esperando aprovação que ninguém vai dar aqui.
-  "Bash(curl *)",
 ].join(",");
 
 function runClaude(prompt, model) {
@@ -141,6 +138,33 @@ function truncate(text, max = MAX_RESULT_CHARS) {
   return text.length > max ? `${text.slice(0, max)}\n…(truncado)` : text;
 }
 
+// O agente login-check não tem ferramenta de rede — só termina a resposta com
+// essas duas linhas. Quem reporta pro painel é o worker (aqui), não o subagente;
+// permissão de Bash/curl do subagente não tem como ser liberada de forma confiável.
+async function reportShopeeLogin(output) {
+  const statusMatch = output.match(/SHOPEE_LOGIN:\s*(true|false|null)/i);
+  if (!statusMatch) {
+    console.error("[login-check] não encontrou SHOPEE_LOGIN na saída do agente");
+    return;
+  }
+  const detailMatch = output.match(/DETAIL:\s*(.+)/i);
+  const raw = statusMatch[1].toLowerCase();
+  const loggedIn = raw === "true" ? true : raw === "false" ? false : null;
+  try {
+    await api(`/api/worker/shopee-login`, {
+      method: "POST",
+      body: JSON.stringify({
+        target: "local",
+        loggedIn,
+        detail: detailMatch ? detailMatch[1].trim() : null,
+      }),
+    });
+    console.log(`[login-check] reportado: loggedIn=${loggedIn}`);
+  } catch (err) {
+    console.error("[login-check] falha ao reportar:", err.message);
+  }
+}
+
 async function processOrder(order) {
   console.log(`[ordem ${order.id}] ${order.agent}: ${order.prompt}`);
   await api(`/api/worker/orders/${order.id}`, {
@@ -160,6 +184,10 @@ async function processOrder(order) {
 
   const fullPrompt = `use o agente ${order.agent} para: ${order.prompt}`;
   const result = await runClaude(fullPrompt, order.model);
+
+  if (order.agent === "login-check") {
+    await reportShopeeLogin(result.output || "");
+  }
 
   await api(`/api/worker/orders/${order.id}`, {
     method: "PATCH",
