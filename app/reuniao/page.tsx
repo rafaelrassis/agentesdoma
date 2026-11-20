@@ -1,13 +1,9 @@
-import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { convocarReuniao } from "../actions";
+import { PageHeader, NavLink } from "../components/PageHeader";
+import { formatDate, relativeTime } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
-
-function formatDate(date: Date | string | null | undefined) {
-  if (!date) return null;
-  return new Date(date).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-}
 
 function Fala({
   nome,
@@ -16,21 +12,21 @@ function Fala({
   children,
 }: {
   nome: string;
-  quando: string | null;
+  quando: Date | string | null;
   destaque?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div
       className={`rounded-xl border p-4 ${
-        destaque
-          ? "border-emerald-700 bg-emerald-950/30"
-          : "border-neutral-800 bg-neutral-900"
+        destaque ? "border-rose-800/60 bg-rose-950/20" : "border-neutral-800 bg-neutral-900/70"
       }`}
     >
       <div className="mb-2 flex items-center justify-between">
         <span className="text-sm font-semibold capitalize">{nome}</span>
-        <span className="text-xs text-neutral-500">{quando ?? "sem fala ainda"}</span>
+        <span className="text-xs text-neutral-500" title={formatDate(quando) ?? undefined}>
+          {quando ? relativeTime(quando) : "sem fala ainda"}
+        </span>
       </div>
       {children}
     </div>
@@ -50,32 +46,23 @@ export default async function Reuniao() {
   const logistica = snapshotData?.logistica;
 
   return (
-    <main className="min-h-screen bg-neutral-950 px-4 py-8 text-neutral-100">
-      <div className="mx-auto max-w-3xl space-y-8">
-        <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold">Reunião dos agentes</h1>
-            <p className="text-sm text-neutral-400">Doma Baby · cada um fala, o gerente fecha</p>
-          </div>
-          <Link
-            href="/"
-            className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900"
-          >
-            Voltar ao painel
-          </Link>
-        </header>
+    <main className="min-h-screen px-4 py-8 text-neutral-100">
+      <div className="mx-auto max-w-3xl space-y-6">
+        <PageHeader title="Reunião dos agentes" subtitle="Doma Baby · cada um fala, o gerente fecha">
+          <NavLink href="/">Voltar ao painel</NavLink>
+        </PageHeader>
 
-        <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
+        <section className="rounded-xl border border-neutral-800 bg-neutral-900/70 p-4">
           <form action={convocarReuniao} className="flex flex-wrap items-center gap-3">
             <select
               name="target"
-              className="rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm"
+              className="rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm outline-none focus:border-rose-500"
               defaultValue="local"
             >
               <option value="local">local (seu PC)</option>
               <option value="cloud">cloud (sem PC)</option>
             </select>
-            <button className="rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900">
+            <button className="rounded-md bg-rose-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-rose-400">
               Convocar reunião
             </button>
             <span className="text-xs text-neutral-500">
@@ -86,7 +73,7 @@ export default async function Reuniao() {
         </section>
 
         <section className="space-y-4">
-          <Fala nome="coletor" quando={latestSnapshot ? formatDate(latestSnapshot.createdAt) : null}>
+          <Fala nome="coletor" quando={latestSnapshot?.createdAt ?? null}>
             {latestSnapshot ? (
               <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
                 <p>Vendas: {loja?.vendas_totais ?? "null"}</p>
@@ -103,9 +90,9 @@ export default async function Reuniao() {
             )}
           </Fala>
 
-          <Fala nome="vendas" quando={vendasReport ? formatDate(vendasReport.createdAt) : null}>
+          <Fala nome="vendas" quando={vendasReport?.createdAt ?? null}>
             {vendasReport ? (
-              <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap text-xs text-neutral-300">
+              <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap rounded-md bg-neutral-950/60 p-2 text-xs text-neutral-300">
                 {vendasReport.content}
               </pre>
             ) : (
@@ -113,12 +100,9 @@ export default async function Reuniao() {
             )}
           </Fala>
 
-          <Fala
-            nome="marketing"
-            quando={marketingReport ? formatDate(marketingReport.createdAt) : null}
-          >
+          <Fala nome="marketing" quando={marketingReport?.createdAt ?? null}>
             {marketingReport ? (
-              <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap text-xs text-neutral-300">
+              <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap rounded-md bg-neutral-950/60 p-2 text-xs text-neutral-300">
                 {marketingReport.content}
               </pre>
             ) : (
@@ -126,13 +110,9 @@ export default async function Reuniao() {
             )}
           </Fala>
 
-          <Fala
-            nome="gerente — ata da reunião"
-            quando={planoReport ? formatDate(planoReport.createdAt) : null}
-            destaque
-          >
+          <Fala nome="gerente — ata da reunião" quando={planoReport?.createdAt ?? null} destaque>
             {planoReport ? (
-              <pre className="max-h-96 overflow-y-auto whitespace-pre-wrap text-sm text-neutral-200">
+              <pre className="max-h-96 overflow-y-auto whitespace-pre-wrap rounded-md bg-neutral-950/60 p-2 text-sm text-neutral-200">
                 {planoReport.content}
               </pre>
             ) : (
@@ -143,7 +123,7 @@ export default async function Reuniao() {
           </Fala>
         </section>
 
-        <p className="text-xs text-neutral-500">
+        <p className="text-xs leading-relaxed text-neutral-500">
           Vendas e marketing não se falam direto (regra de separação de escopo); quem cruza as
           falas e decide é o <code>gerente</code>. Datas diferentes nas falas acima = ainda não
           rodou um ciclo novo desde a última reunião.
