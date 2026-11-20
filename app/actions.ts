@@ -83,3 +83,20 @@ export async function deleteRoutine(formData: FormData) {
   await prisma.routine.delete({ where: { id } });
   revalidatePath("/rotinas");
 }
+
+const REUNIAO_PROMPT =
+  "convoque uma reunião: rode o ciclo da Doma Baby (coletor, depois vendas e marketing em paralelo lendo o mesmo snapshot) e escreva o plano do ciclo resolvendo os conflitos entre eles";
+
+export async function convocarReuniao(formData: FormData) {
+  const target = String(formData.get("target") ?? "local");
+  if (!VALID_TARGETS.includes(target as (typeof VALID_TARGETS)[number])) return;
+
+  await prisma.order.create({
+    data: {
+      agent: "gerente",
+      prompt: REUNIAO_PROMPT,
+      target: target as (typeof VALID_TARGETS)[number],
+    },
+  });
+  revalidatePath("/reuniao");
+}

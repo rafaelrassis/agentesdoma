@@ -164,7 +164,8 @@ async function syncFiles() {
     if (state[file.path] === file.mtimeMs) continue;
     const content = readFileSync(file.path, "utf8");
     const relPath = file.path.replace(`${DOMA_DIR}/`, "");
-    const agent = relPath.split("/").pop().split("-")[0];
+    const fileName = relPath.split("/").pop();
+    const agent = fileName.startsWith("plano-") ? "gerente" : fileName.split("-")[0];
     const dateMatch = relPath.match(/(\d{4}-\d{2}-\d{2})/);
     try {
       await api(`/api/worker/reports`, {

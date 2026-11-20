@@ -46,6 +46,12 @@ export default async function Home() {
           </div>
           <div className="flex items-center gap-2">
             <Link
+              href="/reuniao"
+              className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900"
+            >
+              Reunião
+            </Link>
+            <Link
               href="/rotinas"
               className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900"
             >
