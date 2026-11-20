@@ -16,6 +16,7 @@ Loja de roupa de bebê e infantil na Shopee BR. Vendedor: `claitinha`.
 - Coleta: `data/snapshot-YYYY-MM-DD.json`
 - Relatórios: `out/<agente>-YYYY-MM-DD.md`
 - Plano do ciclo: `out/plano-YYYY-MM-DD.md`
+- Tarefa/ideia pro backlog (painel → Tarefas): acrescente uma linha em `out/tarefas-propostas.md`, formato `- [<seu nome de agente>] texto da tarefa`. O worker sincroniza cada linha nova pro quadro, coluna Backlog. Não precisa reescrever o arquivo inteiro — só acrescente linhas novas no fim.
 
 Commite snapshots. O histórico versionado é o ativo mais valioso deste repo.
 

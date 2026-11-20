@@ -93,3 +93,23 @@ model WorkerHeartbeat {
   target     String   @id
   lastSeenAt DateTime @updatedAt
 }
+
+enum TaskColumn {
+  backlog
+  proximo_ciclo
+  fazendo
+  feito
+}
+
+model Task {
+  id        String     @id @default(cuid())
+  title     String
+  detail    String?
+  column    TaskColumn @default(backlog)
+  position  Int        @default(0)
+  createdBy String     @default("rafael")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([title, createdBy])
+}

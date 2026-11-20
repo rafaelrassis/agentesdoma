@@ -157,6 +157,25 @@ function listFilesRecursive(dir) {
   return out;
 }
 
+const TAREFA_LINE = /^-\s*\[(\w+)\]\s*(.+)$/;
+
+async function syncTarefasPropostas(content) {
+  for (const line of content.split("\n")) {
+    const match = line.trim().match(TAREFA_LINE);
+    if (!match) continue;
+    const [, agent, title] = match;
+    try {
+      const { created } = await api(`/api/worker/tasks`, {
+        method: "POST",
+        body: JSON.stringify({ title: title.trim(), createdBy: agent }),
+      });
+      if (created) console.log(`[sync] tarefa proposta por ${agent}: ${title.trim()}`);
+    } catch (err) {
+      console.error(`[sync] falha ao enviar tarefa (${agent}):`, err.message);
+    }
+  }
+}
+
 async function syncFiles() {
   const state = loadSyncedState();
 
@@ -167,6 +186,13 @@ async function syncFiles() {
     const content = readFileSync(file.path, "utf8");
     const relPath = file.path.replace(`${DOMA_DIR}/`, "");
     const fileName = relPath.split("/").pop();
+
+    if (fileName === "tarefas-propostas.md") {
+      await syncTarefasPropostas(content);
+      state[file.path] = file.mtimeMs;
+      continue;
+    }
+
     const agent = fileName.startsWith("plano-") ? "gerente" : fileName.split("-")[0];
     const dateMatch = relPath.match(/(\d{4}-\d{2}-\d{2})/);
     try {
