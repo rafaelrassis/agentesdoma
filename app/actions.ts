@@ -111,6 +111,11 @@ export async function convocarReuniao(formData: FormData) {
 }
 
 export async function checkShopeeLogin() {
+  const jaTemNaFila = await prisma.order.findFirst({
+    where: { agent: "login-check", status: { in: ["pending", "claimed", "running"] } },
+  });
+  if (jaTemNaFila) return;
+
   await prisma.order.create({
     data: {
       agent: "login-check",

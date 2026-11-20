@@ -21,14 +21,18 @@ export const dynamic = "force-dynamic";
 const AGENTS = ["coletor", "marketing", "vendas", "gerente"] as const;
 
 export default async function Home() {
-  const [orders, runs, latestSnapshot, reports, cloudSettings, shopeeLoginLocal] = await Promise.all([
-    prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 15 }),
-    prisma.run.findMany({ orderBy: { startedAt: "desc" }, take: 10 }),
-    prisma.snapshot.findFirst({ orderBy: { createdAt: "desc" } }),
-    prisma.report.findMany({ orderBy: { createdAt: "desc" }, take: 12 }),
-    prisma.cloudSettings.findUnique({ where: { id: 1 } }),
-    prisma.shopeeLogin.findUnique({ where: { target: "local" } }),
-  ]);
+  const [orders, runs, latestSnapshot, reports, cloudSettings, shopeeLoginLocal, loginCheckPendente] =
+    await Promise.all([
+      prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 15 }),
+      prisma.run.findMany({ orderBy: { startedAt: "desc" }, take: 10 }),
+      prisma.snapshot.findFirst({ orderBy: { createdAt: "desc" } }),
+      prisma.report.findMany({ orderBy: { createdAt: "desc" }, take: 12 }),
+      prisma.cloudSettings.findUnique({ where: { id: 1 } }),
+      prisma.shopeeLogin.findUnique({ where: { target: "local" } }),
+      prisma.order.findFirst({
+        where: { agent: "login-check", status: { in: ["pending", "claimed", "running"] } },
+      }),
+    ]);
 
   const lastRunByAgent = Object.fromEntries(
     AGENTS.map((agent) => [agent, runs.find((r) => r.agent === agent)])
@@ -223,9 +227,10 @@ export default async function Home() {
                 <form action={checkShopeeLogin}>
                   <button
                     type="submit"
-                    className="inline-flex min-h-11 items-center gap-1.5 rounded-control border border-line-strong px-3 text-[13px] text-ink-muted transition-colors hover:border-ink-faint hover:text-ink"
+                    disabled={!!loginCheckPendente}
+                    className="inline-flex min-h-11 items-center gap-1.5 rounded-control border border-line-strong px-3 text-[13px] text-ink-muted transition-colors hover:border-ink-faint hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Checar agora
+                    {loginCheckPendente ? "Checando…" : "Checar agora"}
                   </button>
                 </form>
               </div>
