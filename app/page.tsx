@@ -47,6 +47,7 @@ export default async function Home() {
             <span className={`h-2 w-2 rounded-full ${workerOnline ? "bg-emerald-400" : "bg-neutral-600"}`} />
             Worker local {workerOnline ? "online" : "offline"}
           </span>
+          <NavLink href="/evolucao">Evolução</NavLink>
           <NavLink href="/reuniao">Reunião</NavLink>
           <NavLink href="/rotinas">Rotinas</NavLink>
           <form action={logout}>
