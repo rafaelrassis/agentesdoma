@@ -68,6 +68,17 @@ model Report {
   @@unique([agent, path])
 }
 
+model Routine {
+  id            String          @id @default(cuid())
+  agent         String
+  prompt        String
+  target        ExecutionTarget @default(local)
+  frequencyDays Int             @default(1)
+  enabled       Boolean         @default(true)
+  lastRunAt     DateTime?
+  createdAt     DateTime        @default(now())
+}
+
 model CloudSettings {
   id                  Int       @id @default(1)
   coletorCloudEnabled Boolean   @default(false)

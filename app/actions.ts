@@ -41,3 +41,45 @@ export async function toggleColetorCloud(formData: FormData) {
   });
   revalidatePath("/");
 }
+
+export async function createRoutine(formData: FormData) {
+  const agent = String(formData.get("agent") ?? "");
+  const prompt = String(formData.get("prompt") ?? "").trim();
+  const target = String(formData.get("target") ?? "local");
+  const frequencyDays = Number(formData.get("frequencyDays") ?? 1);
+
+  if (
+    !VALID_AGENTS.includes(agent as (typeof VALID_AGENTS)[number]) ||
+    !VALID_TARGETS.includes(target as (typeof VALID_TARGETS)[number]) ||
+    !prompt ||
+    !Number.isFinite(frequencyDays) ||
+    frequencyDays < 1
+  ) {
+    return;
+  }
+
+  await prisma.routine.create({
+    data: {
+      agent,
+      prompt,
+      target: target as (typeof VALID_TARGETS)[number],
+      frequencyDays: Math.round(frequencyDays),
+    },
+  });
+  revalidatePath("/rotinas");
+}
+
+export async function toggleRoutine(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  const enabled = formData.get("enabled") === "true";
+  if (!id) return;
+  await prisma.routine.update({ where: { id }, data: { enabled } });
+  revalidatePath("/rotinas");
+}
+
+export async function deleteRoutine(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await prisma.routine.delete({ where: { id } });
+  revalidatePath("/rotinas");
+}
