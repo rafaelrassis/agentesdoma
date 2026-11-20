@@ -12,10 +12,10 @@ type Task = {
 };
 
 const COLUMNS = [
-  { key: "backlog", title: "Backlog", accent: "border-t-neutral-500" },
-  { key: "proximo_ciclo", title: "Próximo ciclo", accent: "border-t-sky-500" },
-  { key: "fazendo", title: "Fazendo", accent: "border-t-amber-500" },
-  { key: "feito", title: "Feito", accent: "border-t-emerald-500" },
+  { key: "backlog", title: "Backlog", accent: "border-t-idle" },
+  { key: "proximo_ciclo", title: "Próximo ciclo", accent: "border-t-run" },
+  { key: "fazendo", title: "Fazendo", accent: "border-t-warn" },
+  { key: "feito", title: "Feito", accent: "border-t-ok" },
 ] as const;
 
 export function TaskBoard({ initialTasks }: { initialTasks: Task[] }) {
@@ -34,7 +34,7 @@ export function TaskBoard({ initialTasks }: { initialTasks: Task[] }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-wrap gap-3">
       {COLUMNS.map((col) => {
         const colTasks = tasks.filter((t) => t.column === col.key);
         return (
@@ -42,38 +42,44 @@ export function TaskBoard({ initialTasks }: { initialTasks: Task[] }) {
             key={col.key}
             onDragOver={(e) => e.preventDefault()}
             onDrop={() => handleDrop(col.key)}
-            className={`min-h-[140px] rounded-xl border-x border-b border-t-2 border-neutral-800 bg-neutral-900/70 p-3 ${col.accent}`}
+            className={`flex min-h-[140px] min-w-[220px] flex-[1_1_220px] flex-col gap-3 rounded-card border border-line border-t-2 bg-surface p-3 ${col.accent}`}
           >
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-neutral-300">{col.title}</h2>
-              <span className="rounded-full bg-neutral-800 px-2 py-0.5 text-xs text-neutral-400">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="m-0 text-[13px] font-semibold uppercase tracking-[0.04em] text-ink-muted">
+                {col.title}
+              </h2>
+              <span className="num rounded-full border border-line-strong px-[7px] py-0.5 text-[11px] text-ink-faint">
                 {colTasks.length}
               </span>
             </div>
-            <div className="space-y-2">
-              {colTasks.length === 0 && <p className="text-xs text-neutral-600">vazio — arraste um card aqui</p>}
+            <div className="flex flex-col gap-2">
+              {colTasks.length === 0 && (
+                <p className="text-xs text-ink-faint">vazio — arraste um card aqui</p>
+              )}
               {colTasks.map((task) => (
                 <div
                   key={task.id}
                   draggable
                   onDragStart={() => setDragId(task.id)}
-                  className="group cursor-grab rounded-lg border border-neutral-800 bg-neutral-950 p-2.5 text-xs active:cursor-grabbing"
+                  className="group cursor-grab rounded-control border border-line bg-sunken p-2.5 text-xs active:cursor-grabbing"
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className="font-medium text-neutral-100">{task.title}</p>
+                    <p className="font-medium text-ink">{task.title}</p>
                     <form action={deleteTask}>
                       <input type="hidden" name="id" value={task.id} />
                       <button
                         type="submit"
-                        className="shrink-0 text-neutral-600 opacity-0 transition-opacity hover:text-red-400 group-hover:opacity-100"
-                        title="Excluir"
+                        aria-label="Excluir tarefa"
+                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-control text-ink-faint opacity-0 transition-opacity hover:text-fail-fg group-hover:opacity-100"
                       >
-                        ×
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true" className="h-3.5 w-3.5">
+                          <path d="M4 4 12 12M12 4 4 12" />
+                        </svg>
                       </button>
                     </form>
                   </div>
-                  {task.detail && <p className="mt-1 text-neutral-400">{task.detail}</p>}
-                  <p className="mt-1.5 text-[10px] uppercase tracking-wide text-neutral-600">
+                  {task.detail && <p className="mt-1 text-ink-muted">{task.detail}</p>}
+                  <p className="num mt-1.5 text-[10px] uppercase tracking-wide text-ink-faint">
                     {task.createdBy}
                   </p>
                 </div>

@@ -1,9 +1,12 @@
 import { prisma } from "@/lib/db";
 import { AppShell } from "../components/AppShell";
+import { Card } from "../components/ui";
 import { EvolutionChart, type MetricPoint } from "../components/EvolutionChart";
 import { formatDate } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
+
+const CHART_COLOR = "#ff80a8";
 
 function pick(data: Record<string, any> | null | undefined, ...path: string[]): number | null {
   let cur: any = data;
@@ -46,53 +49,50 @@ export default async function Evolucao() {
 
   return (
     <AppShell title="Evolução da loja" subtitle="Doma Baby · histórico dos snapshots do coletor">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-5">
         {snapshots.length === 0 ? (
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900/70 p-6 text-sm text-neutral-400">
+          <div className="rounded-card border border-line bg-surface p-6 text-[13px] text-ink-muted">
             Ainda não tem nenhum snapshot salvo. Rode o <code>coletor</code> (painel → Nova ordem) pra
             começar a série histórica — cada rodada vira um ponto aqui.
           </div>
         ) : (
           <>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-ink-faint">
               {snapshots.length} snapshot{snapshots.length > 1 ? "s" : ""} registrado
               {snapshots.length > 1 ? "s" : ""} · do mais antigo (
               {formatDate(snapshots[0].createdAt)}) ao mais recente (
               {formatDate(snapshots.at(-1)!.createdAt)}).
             </p>
 
-            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <EvolutionChart label="Visitantes/dia" points={metric("loja", "visitantes_dia")} color="#fb7185" />
-              <EvolutionChart label="Vendas totais" points={metric("loja", "vendas_totais")} color="#fb7185" />
+            <section className="flex flex-wrap gap-3">
+              <EvolutionChart label="Visitantes/dia" points={metric("loja", "visitantes_dia")} color={CHART_COLOR} />
+              <EvolutionChart label="Vendas totais" points={metric("loja", "vendas_totais")} color={CHART_COLOR} />
               <EvolutionChart
                 label="Conversão"
                 points={metric("loja", "conversao")}
-                color="#fb7185"
+                color={CHART_COLOR}
                 unit="%"
               />
               <EvolutionChart
                 label="Impressões (30d, soma de todos os produtos)"
                 points={impressoesPoints}
-                color="#fb7185"
+                color={CHART_COLOR}
               />
               <EvolutionChart
                 label="Produtos ativos"
                 points={metric("loja", "produtos_ativos")}
-                color="#fb7185"
+                color={CHART_COLOR}
               />
               <EvolutionChart
                 label="Saldo Ads"
                 points={metric("loja", "saldo_ads")}
-                color="#fb7185"
+                color={CHART_COLOR}
                 format={currency}
               />
             </section>
 
-            <section className="rounded-xl border border-neutral-800 bg-neutral-900/70 p-4">
-              <h2 className="mb-3 text-sm font-semibold text-neutral-300">
-                Envio Turbo / Frete Grátis por snapshot
-              </h2>
-              <div className="space-y-2">
+            <Card title="Envio Turbo / Frete Grátis por snapshot">
+              <div className="flex flex-col gap-2">
                 {series
                   .slice()
                   .reverse()
@@ -102,18 +102,18 @@ export default async function Evolucao() {
                     return (
                       <div
                         key={`${s.date}-${i}`}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-neutral-800 bg-neutral-950 p-2.5 text-sm"
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-control border border-line bg-sunken p-2.5 text-[13px]"
                       >
-                        <span className="text-neutral-400">{s.date}</span>
-                        <div className="flex gap-2">
-                          <StatusDot label="Envio Turbo" ok={turbo === true} unknown={turbo == null} />
-                          <StatusDot label="Frete Grátis" ok={freteGratis === true} unknown={freteGratis == null} />
+                        <span className="num text-ink-faint">{s.date}</span>
+                        <div className="flex gap-3">
+                          <LogisticsDot label="Envio Turbo" ok={turbo === true} unknown={turbo == null} />
+                          <LogisticsDot label="Frete Grátis" ok={freteGratis === true} unknown={freteGratis == null} />
                         </div>
                       </div>
                     );
                   })}
               </div>
-            </section>
+            </Card>
           </>
         )}
       </div>
@@ -121,12 +121,12 @@ export default async function Evolucao() {
   );
 }
 
-function StatusDot({ label, ok, unknown }: { label: string; ok: boolean; unknown: boolean }) {
-  const color = unknown ? "bg-neutral-600" : ok ? "bg-emerald-400" : "bg-red-400";
-  const text = unknown ? "text-neutral-500" : ok ? "text-emerald-300" : "text-red-300";
+function LogisticsDot({ label, ok, unknown }: { label: string; ok: boolean; unknown: boolean }) {
+  const dot = unknown ? "bg-idle" : ok ? "bg-ok" : "bg-fail";
+  const text = unknown ? "text-ink-faint" : ok ? "text-ok-fg" : "text-fail-fg";
   return (
     <span className={`inline-flex items-center gap-1.5 text-xs ${text}`}>
-      <span className={`h-2 w-2 rounded-full ${color}`} />
+      <span className={`h-2 w-2 rounded-full ${dot}`} />
       {label}
     </span>
   );

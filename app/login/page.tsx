@@ -2,40 +2,34 @@
 
 import { useActionState } from "react";
 import { login } from "./actions";
+import { Button, controlClass } from "../components/ui";
 
 export default function LoginPage() {
   const [error, formAction, pending] = useActionState(login, undefined);
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 text-neutral-100">
+    <main className="flex min-h-screen items-center justify-center px-4">
       <form
         action={formAction}
-        className="w-full max-w-sm space-y-5 rounded-2xl border border-neutral-800 bg-neutral-900/80 p-6 shadow-xl shadow-black/20"
+        className="w-full max-w-sm rounded-card border border-line bg-surface p-6"
       >
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-500/15 text-sm font-semibold text-rose-300">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-chip bg-brand text-sm font-bold text-white">
             DB
           </span>
           <div>
-            <h1 className="text-base font-semibold text-neutral-50">Doma Baby</h1>
-            <p className="text-xs text-neutral-400">Painel de agentes</p>
+            <h1 className="m-0 text-base font-semibold text-ink-strong">Doma Baby</h1>
+            <p className="m-0 text-xs text-ink-muted">Painel de agentes</p>
           </div>
         </div>
-        <input
-          type="password"
-          name="password"
-          placeholder="Senha"
-          autoFocus
-          className="w-full rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-neutral-100 outline-none transition-colors focus:border-rose-500"
-        />
-        {error && <p className="text-sm text-red-400">{error}</p>}
-        <button
-          type="submit"
-          disabled={pending}
-          className="w-full rounded-md bg-rose-500 px-3 py-2 font-medium text-white transition-colors hover:bg-rose-400 disabled:opacity-50"
-        >
+        <label className="mt-5 flex flex-col gap-1.5 text-xs text-ink-muted">
+          Senha
+          <input type="password" name="password" autoFocus className={controlClass} />
+        </label>
+        {error && <p className="mt-3 text-sm text-fail-fg">{error}</p>}
+        <Button variant="primary" type="submit" disabled={pending} className="mt-5 w-full">
           {pending ? "Entrando..." : "Entrar"}
-        </button>
+        </Button>
       </form>
     </main>
   );

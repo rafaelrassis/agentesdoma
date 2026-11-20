@@ -80,21 +80,21 @@ export function EvolutionChart({
   const deltaBad = delta == null ? null : goodDirection === "up" ? delta < 0 : delta > 0;
 
   return (
-    <div className="rounded-lg border border-neutral-800 bg-neutral-950 p-3">
+    <div className="min-w-0 flex-[1_1_260px] rounded-card border border-line bg-surface p-3">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="text-xs font-medium text-neutral-400">{label}</span>
+        <span className="text-xs font-medium text-ink-muted">{label}</span>
         {displayedDate && (
-          <span className="text-[10px] text-neutral-600">{formatDateShort(displayedDate)}</span>
+          <span className="num text-[10px] text-ink-faint">{formatDateShort(displayedDate)}</span>
         )}
       </div>
       <div className="mt-0.5 flex items-baseline gap-2">
-        <span className="text-lg font-semibold text-neutral-100">
-          {displayedValue != null ? fmt(displayedValue) : "null"}
+        <span className="num text-lg font-semibold text-ink-strong">
+          {displayedValue != null ? fmt(displayedValue) : "—"}
         </span>
         {delta != null && (
           <span
-            className={`text-xs font-medium ${
-              deltaGood ? "text-emerald-400" : deltaBad ? "text-red-400" : "text-neutral-500"
+            className={`num text-xs font-medium ${
+              deltaGood ? "text-ok-fg" : deltaBad ? "text-fail-fg" : "text-ink-faint"
             }`}
           >
             {delta > 0 ? "+" : ""}
@@ -104,7 +104,7 @@ export function EvolutionChart({
       </div>
 
       {!geometry ? (
-        <p className="mt-3 text-xs text-neutral-600">
+        <p className="mt-3 text-xs text-ink-faint">
           {valid.length === 0
             ? "Nenhum snapshot com esse número ainda."
             : "Só 1 snapshot até agora — precisa de pelo menos 2 pra traçar a evolução."}
@@ -137,7 +137,7 @@ export function EvolutionChart({
                 x2={CHART_W}
                 y1={PAD_Y + t * (CHART_H - PAD_Y * 2)}
                 y2={PAD_Y + t * (CHART_H - PAD_Y * 2)}
-                stroke="#2c2c2a"
+                stroke="#22262e"
                 strokeWidth={1}
               />
             ))}
@@ -149,7 +149,7 @@ export function EvolutionChart({
                 x2={geometry.coords[hoverIndex].cx}
                 y1={PAD_Y}
                 y2={CHART_H - PAD_Y}
-                stroke="#52514e"
+                stroke="#2b313b"
                 strokeWidth={1}
               />
             )}
@@ -160,7 +160,7 @@ export function EvolutionChart({
                 cy={c.cy}
                 r={i === hoverIndex || (hoverIndex == null && i === geometry.coords.length - 1) ? 5 : 3}
                 fill={color}
-                stroke="#0a0a0a"
+                stroke="#0b0c0f"
                 strokeWidth={2}
               />
             ))}

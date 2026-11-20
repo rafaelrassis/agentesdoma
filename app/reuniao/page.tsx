@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/db";
 import { convocarReuniao } from "../actions";
 import { AppShell } from "../components/AppShell";
-import { formatDate, relativeTime } from "@/lib/ui";
+import { Button, Card } from "../components/ui";
+import { dash, formatDate, relativeTime } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +19,13 @@ function Fala({
 }) {
   return (
     <div
-      className={`rounded-xl border p-4 ${
-        destaque ? "border-rose-800/60 bg-rose-950/20" : "border-neutral-800 bg-neutral-900/70"
+      className={`rounded-card border p-[18px] ${
+        destaque ? "border-brand/50 bg-raised" : "border-line bg-surface"
       }`}
     >
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-semibold capitalize">{nome}</span>
-        <span className="text-xs text-neutral-500" title={formatDate(quando) ?? undefined}>
+      <div className="mb-2.5 flex items-center justify-between gap-2">
+        <span className="text-sm font-semibold capitalize text-ink-strong">{nome}</span>
+        <span className="num text-[11px] text-ink-faint" title={formatDate(quando) ?? undefined}>
           {quando ? relativeTime(quando) : "sem fala ainda"}
         </span>
       </div>
@@ -47,40 +48,40 @@ export default async function Reuniao() {
 
   return (
     <AppShell title="Reunião dos agentes" subtitle="Doma Baby · cada um fala, o gerente fecha">
-      <div className="mx-auto max-w-3xl space-y-6">
-        <section className="rounded-xl border border-neutral-800 bg-neutral-900/70 p-4">
+      <div className="mx-auto flex max-w-3xl flex-col gap-5">
+        <Card>
           <form action={convocarReuniao} className="flex flex-wrap items-center gap-3">
             <select
               name="target"
-              className="rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm outline-none focus:border-rose-500"
+              className="min-h-11 rounded-control border border-line-strong bg-sunken px-3 text-[13px] text-ink outline-none transition-colors focus:border-brand-soft"
               defaultValue="local"
             >
               <option value="local">local (seu PC)</option>
               <option value="cloud">cloud (sem PC)</option>
             </select>
-            <button className="rounded-md bg-rose-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-rose-400">
+            <Button variant="primary" type="submit">
               Convocar reunião
-            </button>
-            <span className="text-xs text-neutral-500">
+            </Button>
+            <span className="text-xs text-ink-faint">
               Enfileira uma ordem pro <code>gerente</code>: ele chama coletor, depois vendas e
-              marketing em paralelo, e escreve o plano. Mesma fila de "Nova ordem".
+              marketing em paralelo, e escreve o plano. Mesma fila de &ldquo;Nova ordem&rdquo;.
             </span>
           </form>
-        </section>
+        </Card>
 
-        <section className="space-y-4">
+        <section className="flex flex-col gap-3">
           <Fala nome="coletor" quando={latestSnapshot?.createdAt ?? null}>
             {latestSnapshot ? (
-              <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
-                <p>Vendas: {loja?.vendas_totais ?? "null"}</p>
-                <p>Visitantes/dia: {loja?.visitantes_dia ?? "null"}</p>
-                <p>Conversão: {loja?.conversao != null ? `${loja.conversao}%` : "null"}</p>
-                <p>Envio Turbo: {logistica?.envio_turbo ? "liberado" : "bloqueado"}</p>
-                <p>Frete Grátis: {logistica?.frete_gratis ? "sim" : "não"}</p>
-                <p>Data do snapshot: {latestSnapshot.date}</p>
+              <div className="grid grid-cols-2 gap-2 text-[13px] text-ink sm:grid-cols-3">
+                <p className="m-0">Vendas: <span className="num">{dash(loja?.vendas_totais)}</span></p>
+                <p className="m-0">Visitantes/dia: <span className="num">{dash(loja?.visitantes_dia)}</span></p>
+                <p className="m-0">Conversão: <span className="num">{dash(loja?.conversao, (v: number) => `${v}%`)}</span></p>
+                <p className="m-0">Envio Turbo: {logistica?.envio_turbo ? "liberado" : "bloqueado"}</p>
+                <p className="m-0">Frete Grátis: {logistica?.frete_gratis ? "sim" : "não"}</p>
+                <p className="num m-0">Data do snapshot: {latestSnapshot.date}</p>
               </div>
             ) : (
-              <p className="text-sm text-neutral-500">
+              <p className="m-0 text-[13px] text-ink-muted">
                 Nenhum snapshot ainda — convoque a reunião pra o coletor falar primeiro.
               </p>
             )}
@@ -88,38 +89,38 @@ export default async function Reuniao() {
 
           <Fala nome="vendas" quando={vendasReport?.createdAt ?? null}>
             {vendasReport ? (
-              <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap rounded-md bg-neutral-950/60 p-2 text-xs text-neutral-300">
+              <pre className="num max-h-80 overflow-y-auto whitespace-pre-wrap rounded-control border border-line bg-sunken p-2.5 text-[11px] leading-relaxed text-ink-muted">
                 {vendasReport.content}
               </pre>
             ) : (
-              <p className="text-sm text-neutral-500">Ainda não falou.</p>
+              <p className="m-0 text-[13px] text-ink-muted">Ainda não falou.</p>
             )}
           </Fala>
 
           <Fala nome="marketing" quando={marketingReport?.createdAt ?? null}>
             {marketingReport ? (
-              <pre className="max-h-80 overflow-y-auto whitespace-pre-wrap rounded-md bg-neutral-950/60 p-2 text-xs text-neutral-300">
+              <pre className="num max-h-80 overflow-y-auto whitespace-pre-wrap rounded-control border border-line bg-sunken p-2.5 text-[11px] leading-relaxed text-ink-muted">
                 {marketingReport.content}
               </pre>
             ) : (
-              <p className="text-sm text-neutral-500">Ainda não falou.</p>
+              <p className="m-0 text-[13px] text-ink-muted">Ainda não falou.</p>
             )}
           </Fala>
 
           <Fala nome="gerente — ata da reunião" quando={planoReport?.createdAt ?? null} destaque>
             {planoReport ? (
-              <pre className="max-h-96 overflow-y-auto whitespace-pre-wrap rounded-md bg-neutral-950/60 p-2 text-sm text-neutral-200">
+              <pre className="num max-h-96 overflow-y-auto whitespace-pre-wrap rounded-control border border-line bg-sunken p-2.5 text-[13px] text-ink">
                 {planoReport.content}
               </pre>
             ) : (
-              <p className="text-sm text-neutral-500">
+              <p className="m-0 text-[13px] text-ink-muted">
                 Ainda sem plano — o gerente fala por último, depois de ouvir todo mundo.
               </p>
             )}
           </Fala>
         </section>
 
-        <p className="text-xs leading-relaxed text-neutral-500">
+        <p className="text-xs leading-relaxed text-ink-faint">
           Vendas e marketing não se falam direto (regra de separação de escopo); quem cruza as
           falas e decide é o <code>gerente</code>. Datas diferentes nas falas acima = ainda não
           rodou um ciclo novo desde a última reunião.
