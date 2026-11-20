@@ -19,6 +19,10 @@ Preencha `.env`:
 node worker.mjs
 ```
 
+### Ligar com 1 clique
+
+Com `.env` já preenchido, dá pra ligar sem abrir terminal: clique duplo em `worker/start.sh` no gerenciador de arquivos (se pedir, marque "permitir executar como programa" nas propriedades do arquivo) ou crie um atalho de desktop apontando pra ele. Ele não duplica processo se o worker já estiver rodando. Log fica em `worker/worker.log`.
+
 Fica rodando em loop (poll a cada 15s por padrão), em primeiro plano. Pra deixar persistente:
 
 ```bash

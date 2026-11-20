@@ -20,14 +20,20 @@ const STATUS_LABEL: Record<string, string> = {
   completed: "concluído",
 };
 
+const WORKER_ONLINE_THRESHOLD_MS = 35_000;
+
 export default async function Home() {
-  const [orders, runs, latestSnapshot, reports, cloudSettings] = await Promise.all([
+  const [orders, runs, latestSnapshot, reports, cloudSettings, workerHeartbeat] = await Promise.all([
     prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 15 }),
     prisma.run.findMany({ orderBy: { startedAt: "desc" }, take: 10 }),
     prisma.snapshot.findFirst({ orderBy: { createdAt: "desc" } }),
     prisma.report.findMany({ orderBy: { createdAt: "desc" }, take: 12 }),
     prisma.cloudSettings.findUnique({ where: { id: 1 } }),
+    prisma.workerHeartbeat.findUnique({ where: { target: "local" } }),
   ]);
+
+  const workerOnline =
+    !!workerHeartbeat && Date.now() - workerHeartbeat.lastSeenAt.getTime() < WORKER_ONLINE_THRESHOLD_MS;
 
   const lastRunByAgent = Object.fromEntries(
     AGENTS.map((agent) => [agent, runs.find((r) => r.agent === agent)])
@@ -47,6 +53,18 @@ export default async function Home() {
             <p className="text-sm text-neutral-400">Shopee BR · loja claitinha</p>
           </div>
           <div className="flex items-center gap-2">
+            <span
+              className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm ${
+                workerOnline
+                  ? "border-emerald-800 bg-emerald-950 text-emerald-300"
+                  : "border-neutral-700 text-neutral-400"
+              }`}
+            >
+              <span
+                className={`h-2 w-2 rounded-full ${workerOnline ? "bg-emerald-400" : "bg-neutral-600"}`}
+              />
+              Worker local {workerOnline ? "online" : "offline"}
+            </span>
             <Link
               href="/reuniao"
               className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900"
@@ -127,9 +145,17 @@ export default async function Home() {
                 ? formatDate(cloudSettings.shopeeSessionSavedAt)
                 : "nenhuma ainda"}
             </span>
+            <a
+              href="https://seller.shopee.com.br/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900"
+            >
+              Logar pelo site
+            </a>
           </div>
           <p className="mt-2 text-xs text-neutral-500">
-            Reusa cookies de login da Shopee numa sandbox cloud (sem seu PC). Risco: quem tiver acesso ao painel/token age como você na Shopee, e a Shopee pode invalidar a sessão por mudança de IP. Pra gerar a sessão, rode <code>node worker/export-shopee-session.mjs</code> na sua máquina.
+            Reusa cookies de login da Shopee numa sandbox cloud (sem seu PC). Risco: quem tiver acesso ao painel/token age como você na Shopee, e a Shopee pode invalidar a sessão por mudança de IP. Não temos como confirmar daqui se a sessão salva ainda está válida — só o próprio run do coletor em nuvem mostra isso (sucesso ou tela de login). Se cair em tela de login, logue no botão acima e rode de novo <code>node worker/export-shopee-session.mjs</code> na sua máquina pra atualizar a sessão.
           </p>
         </section>
 

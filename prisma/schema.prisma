@@ -86,3 +86,8 @@ model CloudSettings {
   shopeeSessionSavedAt DateTime?
   updatedAt           DateTime  @updatedAt
 }
+
+model WorkerHeartbeat {
+  target     String   @id
+  lastSeenAt DateTime @updatedAt
+}

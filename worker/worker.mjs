@@ -208,8 +208,20 @@ async function syncFiles() {
   saveSyncedState(state);
 }
 
+async function sendHeartbeat() {
+  try {
+    await api(`/api/worker/heartbeat`, {
+      method: "POST",
+      body: JSON.stringify({ target: "local" }),
+    });
+  } catch (err) {
+    console.error("[worker] falha no heartbeat:", err.message);
+  }
+}
+
 async function tick() {
   try {
+    await sendHeartbeat();
     await syncFiles();
     const { orders } = await api(`/api/worker/orders?target=local`);
     for (const order of orders) {
