@@ -52,6 +52,7 @@ export default async function Home() {
           <NavLink href="/alertas" badge={alerts.items.length}>
             Alertas
           </NavLink>
+          <NavLink href="/kanban">Kanban</NavLink>
           <NavLink href="/evolucao">Evolução</NavLink>
           <NavLink href="/reuniao">Reunião</NavLink>
           <NavLink href="/rotinas">Rotinas</NavLink>
