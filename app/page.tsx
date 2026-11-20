@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { createOrder, logout, toggleColetorCloud } from "./actions";
 
@@ -43,11 +44,25 @@ export default async function Home() {
             <h1 className="text-xl font-semibold">Doma Baby — painel de agentes</h1>
             <p className="text-sm text-neutral-400">Shopee BR · loja claitinha</p>
           </div>
-          <form action={logout}>
-            <button className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900">
-              Sair
-            </button>
-          </form>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/reuniao"
+              className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900"
+            >
+              Reunião
+            </Link>
+            <Link
+              href="/rotinas"
+              className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900"
+            >
+              Rotinas
+            </Link>
+            <form action={logout}>
+              <button className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900">
+                Sair
+              </button>
+            </form>
+          </div>
         </header>
 
         <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">

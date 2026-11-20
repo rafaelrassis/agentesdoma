@@ -40,3 +40,10 @@ export function checkWorkerToken(request: Request) {
   const expected = process.env.WORKER_TOKEN ?? "";
   return expected.length > 0 && token === expected;
 }
+
+export function checkCronSecret(request: Request) {
+  const header = request.headers.get("authorization") ?? "";
+  const token = header.replace(/^Bearer\s+/i, "");
+  const expected = process.env.CRON_SECRET ?? "";
+  return expected.length > 0 && token === expected;
+}
