@@ -31,3 +31,13 @@ export async function logout() {
   await destroySession();
   redirect("/login");
 }
+
+export async function toggleColetorCloud(formData: FormData) {
+  const enabled = formData.get("enabled") === "true";
+  await prisma.cloudSettings.upsert({
+    where: { id: 1 },
+    create: { id: 1, coletorCloudEnabled: enabled },
+    update: { coletorCloudEnabled: enabled },
+  });
+  revalidatePath("/");
+}

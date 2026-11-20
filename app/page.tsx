@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { createOrder, logout } from "./actions";
+import { createOrder, logout, toggleColetorCloud } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -19,11 +19,12 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default async function Home() {
-  const [orders, runs, latestSnapshot, reports] = await Promise.all([
+  const [orders, runs, latestSnapshot, reports, cloudSettings] = await Promise.all([
     prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 15 }),
     prisma.run.findMany({ orderBy: { startedAt: "desc" }, take: 10 }),
     prisma.snapshot.findFirst({ orderBy: { createdAt: "desc" } }),
     prisma.report.findMany({ orderBy: { createdAt: "desc" }, take: 12 }),
+    prisma.cloudSettings.findUnique({ where: { id: 1 } }),
   ]);
 
   const lastRunByAgent = Object.fromEntries(
@@ -89,6 +90,33 @@ export default async function Home() {
         </section>
 
         <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
+          <h2 className="mb-3 text-sm font-semibold text-neutral-300">Coletor em nuvem (experimental)</h2>
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <form action={toggleColetorCloud}>
+              <input type="hidden" name="enabled" value={cloudSettings?.coletorCloudEnabled ? "false" : "true"} />
+              <button
+                className={`rounded-md px-3 py-1.5 text-sm font-medium ${
+                  cloudSettings?.coletorCloudEnabled
+                    ? "bg-emerald-600 text-white"
+                    : "bg-neutral-800 text-neutral-300"
+                }`}
+              >
+                {cloudSettings?.coletorCloudEnabled ? "Ligado" : "Desligado"}
+              </button>
+            </form>
+            <span className="text-neutral-400">
+              Sessão Shopee salva:{" "}
+              {cloudSettings?.shopeeSessionSavedAt
+                ? formatDate(cloudSettings.shopeeSessionSavedAt)
+                : "nenhuma ainda"}
+            </span>
+          </div>
+          <p className="mt-2 text-xs text-neutral-500">
+            Reusa cookies de login da Shopee numa sandbox cloud (sem seu PC). Risco: quem tiver acesso ao painel/token age como você na Shopee, e a Shopee pode invalidar a sessão por mudança de IP. Pra gerar a sessão, rode <code>node worker/export-shopee-session.mjs</code> na sua máquina.
+          </p>
+        </section>
+
+        <section className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
           <h2 className="mb-3 text-sm font-semibold text-neutral-300">Nova ordem</h2>
           <form action={createOrder} className="flex flex-col gap-3 sm:flex-row">
             <select
@@ -119,7 +147,7 @@ export default async function Home() {
             </button>
           </form>
           <p className="mt-2 text-xs text-neutral-500">
-            <strong>local</strong>: o worker na sua máquina puxa a fila e roda <code>claude -p</code> em ~/doma-agents (único jeito de rodar o <code>coletor</code>, que depende do seu Chrome). <strong>cloud</strong>: roda numa sessão Claude Code Remote, sem precisar do PC — mas o <code>coletor</code> ainda falha ali (sem navegador logado na Shopee).
+            <strong>local</strong>: o worker na sua máquina puxa a fila e roda <code>claude -p</code> em ~/doma-agents (sempre funciona pro <code>coletor</code>). <strong>cloud</strong>: roda numa sessão Claude Code Remote, sem precisar do PC — o <code>coletor</code> só funciona em cloud se "Coletor em nuvem" estiver ligado acima e houver sessão Shopee salva; senão falha limpo.
           </p>
         </section>
 

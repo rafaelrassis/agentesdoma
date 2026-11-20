@@ -45,3 +45,6 @@ next-env.d.ts
 
 # worker local state
 worker/.synced.json
+
+# dumps temporários do coletor-cloud
+.cloud-coletor/

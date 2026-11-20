@@ -67,3 +67,11 @@ model Report {
 
   @@unique([agent, path])
 }
+
+model CloudSettings {
+  id                  Int       @id @default(1)
+  coletorCloudEnabled Boolean   @default(false)
+  shopeeStorageState  Json?
+  shopeeSessionSavedAt DateTime?
+  updatedAt           DateTime  @updatedAt
+}
