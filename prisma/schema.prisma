@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  pending
+  claimed
+  running
+  done
+  failed
+}
+
+enum RunStatus {
+  running
+  completed
+  failed
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  agent     String
+  prompt    String
+  status    OrderStatus @default(pending)
+  result    String?
+  createdAt DateTime    @default(now())
+  claimedAt DateTime?
+  finishedAt DateTime?
+}
+
+model Run {
+  id         String    @id @default(cuid())
+  agent      String
+  status     RunStatus @default(running)
+  summary    String?
+  orderId    String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+}
+
+model Snapshot {
+  id        String   @id @default(cuid())
+  date      String
+  data      Json
+  createdAt DateTime @default(now())
+
+  @@index([date])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  agent     String
+  date      String
+  path      String
+  content   String
+  createdAt DateTime @default(now())
+
+  @@unique([agent, path])
+}
