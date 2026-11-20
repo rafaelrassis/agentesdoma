@@ -21,13 +21,19 @@ enum RunStatus {
   failed
 }
 
+enum ExecutionTarget {
+  local
+  cloud
+}
+
 model Order {
-  id        String      @id @default(cuid())
+  id        String          @id @default(cuid())
   agent     String
   prompt    String
-  status    OrderStatus @default(pending)
+  target    ExecutionTarget @default(local)
+  status    OrderStatus     @default(pending)
   result    String?
-  createdAt DateTime    @default(now())
+  createdAt DateTime        @default(now())
   claimedAt DateTime?
   finishedAt DateTime?
 }

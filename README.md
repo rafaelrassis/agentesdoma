@@ -2,7 +2,12 @@
 
 Painel de controle dos agentes da **Doma Baby** (Shopee BR). Next.js + Prisma + Postgres, publicado na Vercel.
 
-Mostra status dos 4 agentes (`coletor`, `marketing`, `vendas`, `gerente`), último snapshot da loja, relatórios recentes e deixa enfileirar ordens pra eles. Um worker rodando na máquina local (`~/doma-agents/worker`) puxa essa fila, dispara `claude -p` e sincroniza os arquivos de volta.
+Mostra status dos 4 agentes (`coletor`, `marketing`, `vendas`, `gerente`), último snapshot da loja, relatórios recentes e deixa enfileirar ordens pra eles. Cada ordem roda em um de dois destinos, escolhido no painel:
+
+- **local** — um worker (`worker/worker.mjs`) rodando na sua máquina puxa a fila, dispara `claude -p` em `~/doma-agents` e sincroniza `out/*.md` e `data/*.json` de volta. Único jeito de rodar o `coletor` (depende do seu Chrome logado na Shopee).
+- **cloud** — uma sessão Claude Code Remote persistente, acordada por um scheduled trigger, processa a ordem sem precisar do seu PC. Só funciona bem para `marketing`, `vendas` e `gerente` (sem navegador); o `coletor` em nuvem ainda falha até existir um fluxo de login da Shopee sem o seu Chrome.
+
+Os agentes (`CLAUDE.md`, `.claude/agents/`, `data/`, `worker/`) vivem neste mesmo repositório, na raiz.
 
 ## Stack
 

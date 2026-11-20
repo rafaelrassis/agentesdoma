@@ -101,6 +101,14 @@ export default async function Home() {
                 </option>
               ))}
             </select>
+            <select
+              name="target"
+              className="rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm"
+              defaultValue="local"
+            >
+              <option value="local">local (seu PC)</option>
+              <option value="cloud">cloud (sem PC)</option>
+            </select>
             <input
               name="prompt"
               placeholder="ex: rodar o ciclo da Doma Baby"
@@ -111,7 +119,7 @@ export default async function Home() {
             </button>
           </form>
           <p className="mt-2 text-xs text-neutral-500">
-            O worker na sua máquina puxa essa fila e roda <code>claude -p</code> em ~/doma-agents.
+            <strong>local</strong>: o worker na sua máquina puxa a fila e roda <code>claude -p</code> em ~/doma-agents (único jeito de rodar o <code>coletor</code>, que depende do seu Chrome). <strong>cloud</strong>: roda numa sessão Claude Code Remote, sem precisar do PC — mas o <code>coletor</code> ainda falha ali (sem navegador logado na Shopee).
           </p>
         </section>
 
@@ -125,7 +133,9 @@ export default async function Home() {
                 className="rounded-lg border border-neutral-800 bg-neutral-950 p-3 text-sm"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium capitalize">{order.agent}</span>
+                  <span className="font-medium capitalize">
+                    {order.agent} <span className="text-neutral-500">· {order.target}</span>
+                  </span>
                   <span className="text-xs text-neutral-400">
                     {STATUS_LABEL[order.status] ?? order.status} · {formatDate(order.createdAt)}
                   </span>

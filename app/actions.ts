@@ -6,16 +6,24 @@ import { prisma } from "@/lib/db";
 import { destroySession } from "@/lib/auth";
 
 const VALID_AGENTS = ["coletor", "marketing", "vendas", "gerente"] as const;
+const VALID_TARGETS = ["local", "cloud"] as const;
 
 export async function createOrder(formData: FormData) {
   const agent = String(formData.get("agent") ?? "");
   const prompt = String(formData.get("prompt") ?? "").trim();
+  const target = String(formData.get("target") ?? "local");
 
-  if (!VALID_AGENTS.includes(agent as (typeof VALID_AGENTS)[number]) || !prompt) {
+  if (
+    !VALID_AGENTS.includes(agent as (typeof VALID_AGENTS)[number]) ||
+    !VALID_TARGETS.includes(target as (typeof VALID_TARGETS)[number]) ||
+    !prompt
+  ) {
     return;
   }
 
-  await prisma.order.create({ data: { agent, prompt } });
+  await prisma.order.create({
+    data: { agent, prompt, target: target as (typeof VALID_TARGETS)[number] },
+  });
   revalidatePath("/");
 }
 
