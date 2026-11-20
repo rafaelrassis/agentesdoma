@@ -18,7 +18,12 @@ export async function GET(request: Request) {
     if (dueAt > now) continue;
 
     await prisma.order.create({
-      data: { agent: routine.agent, prompt: routine.prompt, target: routine.target },
+      data: {
+        agent: routine.agent,
+        prompt: routine.prompt,
+        target: routine.target,
+        model: routine.model,
+      },
     });
     await prisma.routine.update({ where: { id: routine.id }, data: { lastRunAt: now } });
     created.push(routine.id);

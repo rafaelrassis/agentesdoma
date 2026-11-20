@@ -173,6 +173,14 @@ export default async function Home() {
                 <option value="cloud">cloud (sem PC)</option>
               </select>
             </Field>
+            <Field label="Modelo">
+              <select name="model" className={selectClass} defaultValue="">
+                <option value="">padrão</option>
+                <option value="sonnet">Sonnet</option>
+                <option value="opus">Opus</option>
+                <option value="haiku">Haiku</option>
+              </select>
+            </Field>
             <Field label="Prompt" className="flex-1">
               <input
                 name="prompt"
@@ -189,7 +197,10 @@ export default async function Home() {
             roda <code>claude -p</code> em ~/doma-agents (sempre funciona pro <code>coletor</code>).{" "}
             <strong className="text-neutral-400">cloud</strong>: roda numa sessão Claude Code Remote,
             sem precisar do PC — o <code>coletor</code> só funciona em cloud se "Coletor em nuvem"
-            estiver ligado acima e houver sessão Shopee salva; senão falha limpo.
+            estiver ligado acima e houver sessão Shopee salva; senão falha limpo.{" "}
+            <strong className="text-neutral-400">Modelo</strong>: só vale pra ordens locais — o
+            worker passa pro <code>claude -p --model</code>. Em cloud ainda não tem quem leia esse
+            campo, então fica sem efeito.
           </p>
         </Card>
 
@@ -203,7 +214,11 @@ export default async function Home() {
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-medium capitalize">
-                    {order.agent} <span className="font-normal text-neutral-500">· {order.target}</span>
+                    {order.agent}{" "}
+                    <span className="font-normal text-neutral-500">
+                      · {order.target}
+                      {order.model ? ` · ${order.model}` : ""}
+                    </span>
                   </span>
                   <div className="flex items-center gap-2">
                     <StatusPill status={order.status} />

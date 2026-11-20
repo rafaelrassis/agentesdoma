@@ -82,11 +82,13 @@ async function api(path, options = {}) {
   return res.status === 204 ? null : res.json();
 }
 
-function runClaude(prompt) {
+function runClaude(prompt, model) {
+  const args = ["-p", prompt, "--permission-mode", PERMISSION_MODE];
+  if (model) args.push("--model", model);
   return new Promise((resolve) => {
     execFile(
       "claude",
-      ["-p", prompt, "--permission-mode", PERMISSION_MODE],
+      args,
       { cwd: DOMA_DIR, maxBuffer: 1024 * 1024 * 10, timeout: 1000 * 60 * 20 },
       (error, stdout, stderr) => {
         resolve({
@@ -122,7 +124,7 @@ async function processOrder(order) {
   });
 
   const fullPrompt = `use o agente ${order.agent} para: ${order.prompt}`;
-  const result = await runClaude(fullPrompt);
+  const result = await runClaude(fullPrompt, order.model);
 
   await api(`/api/worker/orders/${order.id}`, {
     method: "PATCH",

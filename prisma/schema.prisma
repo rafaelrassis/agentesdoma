@@ -31,6 +31,7 @@ model Order {
   agent     String
   prompt    String
   target    ExecutionTarget @default(local)
+  model     String?
   status    OrderStatus     @default(pending)
   result    String?
   createdAt DateTime        @default(now())
@@ -73,6 +74,7 @@ model Routine {
   agent         String
   prompt        String
   target        ExecutionTarget @default(local)
+  model         String?
   frequencyDays Int             @default(1)
   enabled       Boolean         @default(true)
   lastRunAt     DateTime?

@@ -7,11 +7,18 @@ import { destroySession } from "@/lib/auth";
 
 const VALID_AGENTS = ["coletor", "marketing", "vendas", "gerente"] as const;
 const VALID_TARGETS = ["local", "cloud"] as const;
+const VALID_MODELS = ["sonnet", "opus", "haiku"] as const;
+
+function parseModel(formData: FormData) {
+  const model = String(formData.get("model") ?? "").trim();
+  return VALID_MODELS.includes(model as (typeof VALID_MODELS)[number]) ? model : null;
+}
 
 export async function createOrder(formData: FormData) {
   const agent = String(formData.get("agent") ?? "");
   const prompt = String(formData.get("prompt") ?? "").trim();
   const target = String(formData.get("target") ?? "local");
+  const model = parseModel(formData);
 
   if (
     !VALID_AGENTS.includes(agent as (typeof VALID_AGENTS)[number]) ||
@@ -22,7 +29,7 @@ export async function createOrder(formData: FormData) {
   }
 
   await prisma.order.create({
-    data: { agent, prompt, target: target as (typeof VALID_TARGETS)[number] },
+    data: { agent, prompt, target: target as (typeof VALID_TARGETS)[number], model },
   });
   revalidatePath("/");
 }
@@ -47,6 +54,7 @@ export async function createRoutine(formData: FormData) {
   const prompt = String(formData.get("prompt") ?? "").trim();
   const target = String(formData.get("target") ?? "local");
   const frequencyDays = Number(formData.get("frequencyDays") ?? 1);
+  const model = parseModel(formData);
 
   if (
     !VALID_AGENTS.includes(agent as (typeof VALID_AGENTS)[number]) ||
@@ -63,6 +71,7 @@ export async function createRoutine(formData: FormData) {
       agent,
       prompt,
       target: target as (typeof VALID_TARGETS)[number],
+      model,
       frequencyDays: Math.round(frequencyDays),
     },
   });
