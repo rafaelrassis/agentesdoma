@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { PageHeader, NavLink } from "../components/PageHeader";
+import { AppShell } from "../components/AppShell";
 import { EvolutionChart, type MetricPoint } from "../components/EvolutionChart";
 import { formatDate } from "@/lib/ui";
 
@@ -45,12 +45,8 @@ export default async function Evolucao() {
   }));
 
   return (
-    <main className="min-h-screen px-4 py-8 text-neutral-100">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <PageHeader title="Evolução da loja" subtitle="Doma Baby · histórico dos snapshots do coletor">
-          <NavLink href="/">Voltar ao painel</NavLink>
-        </PageHeader>
-
+    <AppShell title="Evolução da loja" subtitle="Doma Baby · histórico dos snapshots do coletor">
+      <div className="space-y-6">
         {snapshots.length === 0 ? (
           <div className="rounded-xl border border-neutral-800 bg-neutral-900/70 p-6 text-sm text-neutral-400">
             Ainda não tem nenhum snapshot salvo. Rode o <code>coletor</code> (painel → Nova ordem) pra
@@ -121,7 +117,7 @@ export default async function Evolucao() {
           </>
         )}
       </div>
-    </main>
+    </AppShell>
   );
 }
 

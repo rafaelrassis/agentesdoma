@@ -1,29 +1,22 @@
 import { prisma } from "@/lib/db";
-import { createOrder, logout, toggleColetorCloud } from "./actions";
+import { createOrder, toggleColetorCloud } from "./actions";
 import { AutoRefresh } from "./auto-refresh";
-import { PageHeader, NavLink } from "./components/PageHeader";
+import { AppShell } from "./components/AppShell";
 import { StatusPill } from "./components/StatusPill";
 import { formatDate, relativeTime, type StatusKind } from "@/lib/ui";
-import { getAlerts } from "@/lib/alerts";
 
 export const dynamic = "force-dynamic";
 
 const AGENTS = ["coletor", "marketing", "vendas", "gerente"] as const;
-const WORKER_ONLINE_THRESHOLD_MS = 35_000;
 
 export default async function Home() {
-  const [orders, runs, latestSnapshot, reports, cloudSettings, workerHeartbeat, alerts] = await Promise.all([
+  const [orders, runs, latestSnapshot, reports, cloudSettings] = await Promise.all([
     prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 15 }),
     prisma.run.findMany({ orderBy: { startedAt: "desc" }, take: 10 }),
     prisma.snapshot.findFirst({ orderBy: { createdAt: "desc" } }),
     prisma.report.findMany({ orderBy: { createdAt: "desc" }, take: 12 }),
     prisma.cloudSettings.findUnique({ where: { id: 1 } }),
-    prisma.workerHeartbeat.findUnique({ where: { target: "local" } }),
-    getAlerts(),
   ]);
-
-  const workerOnline =
-    !!workerHeartbeat && Date.now() - workerHeartbeat.lastSeenAt.getTime() < WORKER_ONLINE_THRESHOLD_MS;
 
   const lastRunByAgent = Object.fromEntries(
     AGENTS.map((agent) => [agent, runs.find((r) => r.agent === agent)])
@@ -35,35 +28,9 @@ export default async function Home() {
   const turboBloqueado = logistica ? !logistica.envio_turbo : null;
 
   return (
-    <main className="min-h-screen px-4 py-8 text-neutral-100">
+    <AppShell title="Visão geral" subtitle="Painel de agentes · Shopee BR · loja claitinha">
       <AutoRefresh />
-      <div className="mx-auto max-w-5xl space-y-6">
-        <PageHeader title="Doma Baby" subtitle="Painel de agentes · Shopee BR · loja claitinha">
-          <span
-            className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm ${
-              workerOnline
-                ? "border-emerald-800 bg-emerald-950 text-emerald-300"
-                : "border-neutral-700 bg-neutral-900 text-neutral-400"
-            }`}
-          >
-            <span className={`h-2 w-2 rounded-full ${workerOnline ? "bg-emerald-400" : "bg-neutral-600"}`} />
-            Worker local {workerOnline ? "online" : "offline"}
-          </span>
-          <NavLink href="/alertas" badge={alerts.items.length}>
-            Alertas
-          </NavLink>
-          <NavLink href="/tarefas">Tarefas</NavLink>
-          <NavLink href="/kanban">Kanban</NavLink>
-          <NavLink href="/evolucao">Evolução</NavLink>
-          <NavLink href="/reuniao">Reunião</NavLink>
-          <NavLink href="/rotinas">Rotinas</NavLink>
-          <form action={logout}>
-            <button className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 transition-colors hover:border-neutral-600 hover:bg-neutral-900">
-              Sair
-            </button>
-          </form>
-        </PageHeader>
-
+      <div className="space-y-6">
         {turboBloqueado && (
           <div className="flex items-center gap-2 rounded-xl border border-red-900 bg-red-950/40 px-4 py-3 text-sm text-red-300">
             <span className="h-2 w-2 shrink-0 rounded-full bg-red-400" />
@@ -266,7 +233,7 @@ export default async function Home() {
           </div>
         </Card>
       </div>
-    </main>
+    </AppShell>
   );
 }
 

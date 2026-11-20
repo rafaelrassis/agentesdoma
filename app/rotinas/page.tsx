@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { createRoutine, toggleRoutine, deleteRoutine } from "../actions";
-import { PageHeader, NavLink } from "../components/PageHeader";
+import { AppShell } from "../components/AppShell";
 import { formatDate, relativeTime } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
@@ -11,12 +11,8 @@ export default async function Rotinas() {
   const routines = await prisma.routine.findMany({ orderBy: { createdAt: "desc" } });
 
   return (
-    <main className="min-h-screen px-4 py-8 text-neutral-100">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <PageHeader title="Rotinas dos agentes" subtitle="Doma Baby · execução recorrente">
-          <NavLink href="/">Voltar ao painel</NavLink>
-        </PageHeader>
-
+    <AppShell title="Rotinas dos agentes" subtitle="Doma Baby · execução recorrente">
+      <div className="space-y-6">
         <details className="rounded-xl border border-neutral-800 bg-neutral-900/70 p-4">
           <summary className="cursor-pointer text-sm font-semibold text-neutral-300 marker:content-none">
             + Nova rotina
@@ -129,6 +125,6 @@ export default async function Rotinas() {
           <code>CLAUDE.md</code> — inclusive o congelamento de 14 dias.
         </p>
       </div>
-    </main>
+    </AppShell>
   );
 }

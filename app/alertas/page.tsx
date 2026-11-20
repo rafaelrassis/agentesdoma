@@ -1,4 +1,4 @@
-import { PageHeader, NavLink } from "../components/PageHeader";
+import { AppShell } from "../components/AppShell";
 import { StatusPill } from "../components/StatusPill";
 import { getAlerts } from "@/lib/alerts";
 import { formatDate, relativeTime } from "@/lib/ui";
@@ -9,12 +9,8 @@ export default async function Alertas() {
   const { items, failedOrders, semEstoque, penalidades } = await getAlerts();
 
   return (
-    <main className="min-h-screen px-4 py-8 text-neutral-100">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <PageHeader title="Alertas" subtitle="Doma Baby · o que precisa de você agora">
-          <NavLink href="/">Voltar ao painel</NavLink>
-        </PageHeader>
-
+    <AppShell title="Alertas" subtitle="Doma Baby · o que precisa de você agora">
+      <div className="space-y-6">
         {items.length === 0 ? (
           <div className="flex items-center gap-2 rounded-xl border border-emerald-900 bg-emerald-950/30 px-4 py-3 text-sm text-emerald-300">
             <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
@@ -108,6 +104,6 @@ export default async function Alertas() {
           </section>
         )}
       </div>
-    </main>
+    </AppShell>
   );
 }

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { PageHeader, NavLink } from "../components/PageHeader";
+import { AppShell } from "../components/AppShell";
 import { formatDate, relativeTime } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
@@ -15,13 +15,8 @@ export default async function Kanban() {
   const orders = await prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 60 });
 
   return (
-    <main className="min-h-screen px-4 py-8 text-neutral-100">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <PageHeader title="Kanban das ordens" subtitle="Doma Baby · visão por status (só leitura)">
-          <NavLink href="/">Voltar ao painel</NavLink>
-        </PageHeader>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <AppShell title="Kanban das ordens" subtitle="Doma Baby · visão por status (só leitura)">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {COLUMNS.map((col) => {
             const colOrders = orders.filter((o) => (col.statuses as readonly string[]).includes(o.status));
             return (
@@ -59,8 +54,7 @@ export default async function Kanban() {
               </div>
             );
           })}
-        </div>
       </div>
-    </main>
+    </AppShell>
   );
 }

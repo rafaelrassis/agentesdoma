@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { convocarReuniao } from "../actions";
-import { PageHeader, NavLink } from "../components/PageHeader";
+import { AppShell } from "../components/AppShell";
 import { formatDate, relativeTime } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
@@ -46,12 +46,8 @@ export default async function Reuniao() {
   const logistica = snapshotData?.logistica;
 
   return (
-    <main className="min-h-screen px-4 py-8 text-neutral-100">
+    <AppShell title="Reunião dos agentes" subtitle="Doma Baby · cada um fala, o gerente fecha">
       <div className="mx-auto max-w-3xl space-y-6">
-        <PageHeader title="Reunião dos agentes" subtitle="Doma Baby · cada um fala, o gerente fecha">
-          <NavLink href="/">Voltar ao painel</NavLink>
-        </PageHeader>
-
         <section className="rounded-xl border border-neutral-800 bg-neutral-900/70 p-4">
           <form action={convocarReuniao} className="flex flex-wrap items-center gap-3">
             <select
@@ -129,6 +125,6 @@ export default async function Reuniao() {
           rodou um ciclo novo desde a última reunião.
         </p>
       </div>
-    </main>
+    </AppShell>
   );
 }

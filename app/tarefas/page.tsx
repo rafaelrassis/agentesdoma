@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { PageHeader, NavLink } from "../components/PageHeader";
+import { AppShell } from "../components/AppShell";
 import { TaskBoard } from "../components/TaskBoard";
 import { createTask } from "./actions";
 
@@ -9,12 +9,8 @@ export default async function Tarefas() {
   const tasks = await prisma.task.findMany({ orderBy: [{ column: "asc" }, { position: "asc" }] });
 
   return (
-    <main className="min-h-screen px-4 py-8 text-neutral-100">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <PageHeader title="Tarefas & ideias" subtitle="Doma Baby · backlog de planejamento, humano + agentes">
-          <NavLink href="/">Voltar ao painel</NavLink>
-        </PageHeader>
-
+    <AppShell title="Tarefas & ideias" subtitle="Doma Baby · backlog de planejamento, humano + agentes">
+      <div className="space-y-6">
         <section className="rounded-xl border border-neutral-800 bg-neutral-900/70 p-4">
           <h2 className="mb-3 text-sm font-semibold text-neutral-300">Nova tarefa</h2>
           <form action={createTask} className="flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -62,6 +58,6 @@ export default async function Tarefas() {
           <code>out/tarefas-propostas.md</code> — o worker sincroniza pro Backlog a cada ciclo.
         </p>
       </div>
-    </main>
+    </AppShell>
   );
 }
