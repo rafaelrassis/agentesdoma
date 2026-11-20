@@ -10,10 +10,24 @@ export default async function Tarefas() {
   const tasks = await prisma.task.findMany({ orderBy: [{ column: "asc" }, { position: "asc" }] });
 
   return (
-    <AppShell title="Tarefas & ideias" subtitle="Doma Baby · backlog de planejamento, humano + agentes">
+    <AppShell
+      title="Tarefas & ideias"
+      subtitle="Doma Baby · backlog de planejamento, humano + agentes"
+      actions={
+        <a
+          href="#nova-tarefa"
+          className="inline-flex min-h-11 items-center gap-2 rounded-control bg-brand px-4 text-[13px] font-semibold text-white transition-colors hover:bg-brand-hover"
+        >
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true" className="h-[15px] w-[15px]">
+            <path d="M8 3.5v9M3.5 8h9" />
+          </svg>
+          Nova tarefa
+        </a>
+      }
+    >
       <div className="flex flex-col gap-5">
         <Card title="Nova tarefa">
-          <form action={createTask} className="flex flex-wrap items-end gap-3">
+          <form id="nova-tarefa" action={createTask} className="flex flex-wrap items-end gap-3">
             <Field label="Título" className="flex-[999_1_220px]">
               <input
                 name="title"

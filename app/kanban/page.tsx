@@ -16,13 +16,13 @@ export default async function Kanban() {
 
   return (
     <AppShell title="Kanban das ordens" subtitle="Doma Baby · visão por status (só leitura)">
-      <div className="flex flex-wrap gap-3">
+      <div className="-mx-7 flex gap-3 overflow-x-auto px-7 pb-2">
         {COLUMNS.map((col) => {
           const colOrders = orders.filter((o) => (col.statuses as readonly string[]).includes(o.status));
           return (
             <div
               key={col.key}
-              className={`min-w-[220px] flex-[1_1_220px] rounded-card border border-line border-t-2 bg-surface p-3 ${col.accent}`}
+              className={`w-[240px] shrink-0 rounded-card border border-line border-t-2 bg-surface p-3 ${col.accent}`}
             >
               <div className="mb-3 flex items-center justify-between gap-2">
                 <h2 className="m-0 text-[13px] font-semibold uppercase tracking-[0.04em] text-ink-muted">

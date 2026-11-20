@@ -34,7 +34,7 @@ export function TaskBoard({ initialTasks }: { initialTasks: Task[] }) {
   }
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="-mx-7 flex gap-3 overflow-x-auto px-7 pb-2">
       {COLUMNS.map((col) => {
         const colTasks = tasks.filter((t) => t.column === col.key);
         return (
@@ -42,7 +42,7 @@ export function TaskBoard({ initialTasks }: { initialTasks: Task[] }) {
             key={col.key}
             onDragOver={(e) => e.preventDefault()}
             onDrop={() => handleDrop(col.key)}
-            className={`flex min-h-[140px] min-w-[220px] flex-[1_1_220px] flex-col gap-3 rounded-card border border-line border-t-2 bg-surface p-3 ${col.accent}`}
+            className={`flex min-h-[140px] w-[240px] shrink-0 flex-col gap-3 rounded-card border border-line border-t-2 bg-surface p-3 ${col.accent}`}
           >
             <div className="flex items-center justify-between gap-2">
               <h2 className="m-0 text-[13px] font-semibold uppercase tracking-[0.04em] text-ink-muted">
