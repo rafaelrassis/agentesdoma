@@ -17,6 +17,16 @@ export function relativeTime(date: Date | string | null | undefined) {
   return `há ${diffD}d`;
 }
 
+/**
+ * A string "null" nunca chega à tela. Use em todo valor que vem do snapshot.
+ *   dash(loja?.vendas_totais)            -> "0" | "—"
+ *   dash(loja?.conversao, (v) => `${v}%`) -> "0%" | "—"
+ */
+export function dash<T>(value: T | null | undefined, format?: (v: T) => string) {
+  if (value === null || value === undefined || value === "") return "—";
+  return format ? format(value) : String(value);
+}
+
 export type StatusKind =
   | "pending"
   | "claimed"
@@ -29,37 +39,37 @@ export type StatusKind =
 export const STATUS_META: Record<StatusKind, { label: string; className: string; dot: string }> = {
   pending: {
     label: "na fila",
-    className: "border-amber-800 bg-amber-950 text-amber-300",
-    dot: "bg-amber-400",
+    className: "border-warn-line bg-warn-bg text-warn-fg",
+    dot: "bg-warn",
   },
   claimed: {
     label: "pego pelo worker",
-    className: "border-sky-800 bg-sky-950 text-sky-300",
-    dot: "bg-sky-400",
+    className: "border-run-line bg-run-bg text-run-fg",
+    dot: "bg-run",
   },
   running: {
     label: "rodando",
-    className: "border-sky-800 bg-sky-950 text-sky-300",
-    dot: "bg-sky-400 animate-pulse",
+    className: "border-run-line bg-run-bg text-run-fg",
+    dot: "bg-run animate-pulse",
   },
   done: {
     label: "concluída",
-    className: "border-emerald-800 bg-emerald-950 text-emerald-300",
-    dot: "bg-emerald-400",
+    className: "border-ok-line bg-ok-bg text-ok-fg",
+    dot: "bg-ok",
   },
   completed: {
     label: "concluído",
-    className: "border-emerald-800 bg-emerald-950 text-emerald-300",
-    dot: "bg-emerald-400",
+    className: "border-ok-line bg-ok-bg text-ok-fg",
+    dot: "bg-ok",
   },
   failed: {
     label: "falhou",
-    className: "border-red-800 bg-red-950 text-red-300",
-    dot: "bg-red-400",
+    className: "border-fail-line bg-fail-bg text-fail-fg",
+    dot: "bg-fail",
   },
   idle: {
-    label: "sem execução ainda",
-    className: "border-neutral-700 bg-neutral-900 text-neutral-400",
-    dot: "bg-neutral-600",
+    label: "sem execução",
+    className: "border-idle-line bg-idle-bg text-idle-fg",
+    dot: "bg-idle",
   },
 };
