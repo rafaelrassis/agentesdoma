@@ -109,3 +109,14 @@ export async function convocarReuniao(formData: FormData) {
   });
   revalidatePath("/reuniao");
 }
+
+export async function checkShopeeLogin() {
+  await prisma.order.create({
+    data: {
+      agent: "login-check",
+      prompt: "confira se o Chrome está logado no Seller Center da Shopee e reporte pro painel",
+      target: "local",
+    },
+  });
+  revalidatePath("/");
+}

@@ -94,6 +94,13 @@ model WorkerHeartbeat {
   lastSeenAt DateTime @updatedAt
 }
 
+model ShopeeLogin {
+  target    String   @id
+  loggedIn  Boolean?
+  detail    String?
+  checkedAt DateTime @updatedAt
+}
+
 enum TaskColumn {
   backlog
   proximo_ciclo

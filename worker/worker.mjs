@@ -82,17 +82,49 @@ async function api(path, options = {}) {
   return res.status === 204 ? null : res.json();
 }
 
+// Ferramentas do coletor (ver .claude/agents/coletor.md) que pedem aprovação de uso
+// mesmo com --chrome conectado. Numa sessão não-interativa (-p) ninguém responde esse
+// prompt, então ele é negado por padrão — liberamos só essas, não Bash/bypassPermissions
+// geral, pra não destravar comandos de shell sem confirmação pros outros agentes.
+const AUTO_ALLOWED_TOOLS = [
+  "mcp__claude-in-chrome__navigate",
+  "mcp__claude-in-chrome__get_page_text",
+  "mcp__claude-in-chrome__read_page",
+  "mcp__claude-in-chrome__computer",
+  "mcp__claude-in-chrome__tabs_create_mcp",
+  "mcp__claude-in-chrome__tabs_context_mcp",
+  // o agente login-check reporta o resultado pro painel com um curl — sem isso,
+  // o comando fica pendurado esperando aprovação que ninguém vai dar aqui.
+  "Bash(curl *)",
+].join(",");
+
 function runClaude(prompt, model) {
   // --chrome: sem isso o Claude in Chrome nunca conecta num `claude -p` disparado
   // por subprocesso (confirmado por diagnóstico: mcp_servers só traz claude-in-chrome
   // "connected" quando a flag é passada). O coletor depende disso pra coletar na Shopee.
-  const args = ["-p", prompt, "--permission-mode", PERMISSION_MODE, "--chrome"];
+  const args = [
+    "-p",
+    prompt,
+    "--permission-mode",
+    PERMISSION_MODE,
+    "--chrome",
+    "--allowedTools",
+    AUTO_ALLOWED_TOOLS,
+  ];
   if (model) args.push("--model", model);
   return new Promise((resolve) => {
     execFile(
       "claude",
       args,
-      { cwd: DOMA_DIR, maxBuffer: 1024 * 1024 * 10, timeout: 1000 * 60 * 20 },
+      {
+        cwd: DOMA_DIR,
+        maxBuffer: 1024 * 1024 * 10,
+        timeout: 1000 * 60 * 20,
+        // sem isso o subprocesso só enxerga o ambiente do SO, nunca o que veio do
+        // worker/.env — e o login-check precisa de DASHBOARD_URL/WORKER_TOKEN pra
+        // conseguir reportar o resultado de volta pro painel.
+        env: { ...process.env, DASHBOARD_URL, WORKER_TOKEN },
+      },
       (error, stdout, stderr) => {
         resolve({
           ok: !error,

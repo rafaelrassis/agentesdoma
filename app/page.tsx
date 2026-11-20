@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { createOrder, toggleColetorCloud } from "./actions";
+import { createOrder, toggleColetorCloud, checkShopeeLogin } from "./actions";
 import { AutoRefresh } from "./auto-refresh";
 import { AppShell } from "./components/AppShell";
 import { StatusPill, StatusDot } from "./components/StatusPill";
@@ -21,12 +21,13 @@ export const dynamic = "force-dynamic";
 const AGENTS = ["coletor", "marketing", "vendas", "gerente"] as const;
 
 export default async function Home() {
-  const [orders, runs, latestSnapshot, reports, cloudSettings] = await Promise.all([
+  const [orders, runs, latestSnapshot, reports, cloudSettings, shopeeLoginLocal] = await Promise.all([
     prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 15 }),
     prisma.run.findMany({ orderBy: { startedAt: "desc" }, take: 10 }),
     prisma.snapshot.findFirst({ orderBy: { createdAt: "desc" } }),
     prisma.report.findMany({ orderBy: { createdAt: "desc" }, take: 12 }),
     prisma.cloudSettings.findUnique({ where: { id: 1 } }),
+    prisma.shopeeLogin.findUnique({ where: { target: "local" } }),
   ]);
 
   const lastRunByAgent = Object.fromEntries(
@@ -37,6 +38,13 @@ export default async function Home() {
   const loja = snapshotData?.loja as Record<string, number | null> | undefined;
   const logistica = snapshotData?.logistica as Record<string, boolean> | undefined;
   const turboBloqueado = logistica ? !logistica.envio_turbo : null;
+
+  const loginFarol =
+    shopeeLoginLocal?.loggedIn === true
+      ? { dot: "bg-ok", text: "text-ok-fg", label: "Logado" }
+      : shopeeLoginLocal?.loggedIn === false
+        ? { dot: "bg-fail", text: "text-fail-fg", label: "Deslogado" }
+        : { dot: "bg-idle", text: "text-idle-fg", label: shopeeLoginLocal ? "Erro ao checar" : "Nunca checado" };
 
   const subtitle = latestSnapshot ? (
     <>
@@ -200,6 +208,34 @@ export default async function Home() {
                   </details>
                 ))}
               </div>
+            </Card>
+
+            <Card title="Login Shopee (local)">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="flex items-center gap-2 text-[13px] font-semibold">
+                  <span className={`h-[9px] w-[9px] shrink-0 rounded-full ${loginFarol.dot}`} />
+                  <span className={loginFarol.text}>{loginFarol.label}</span>
+                </span>
+                <span className="num text-[11px] text-ink-faint" title={formatDate(shopeeLoginLocal?.checkedAt) ?? undefined}>
+                  {shopeeLoginLocal ? relativeTime(shopeeLoginLocal.checkedAt) : ""}
+                </span>
+                <span className="flex-1" />
+                <form action={checkShopeeLogin}>
+                  <button
+                    type="submit"
+                    className="inline-flex min-h-11 items-center gap-1.5 rounded-control border border-line-strong px-3 text-[13px] text-ink-muted transition-colors hover:border-ink-faint hover:text-ink"
+                  >
+                    Checar agora
+                  </button>
+                </form>
+              </div>
+              {shopeeLoginLocal?.detail && (
+                <p className="mt-2 text-[12px] text-ink-faint">{shopeeLoginLocal.detail}</p>
+              )}
+              <p className="mt-2 text-[12px] leading-relaxed text-ink-faint">
+                Abre uma ordem só-leitura (<code>login-check</code>) que confere o Chrome do seu PC —
+                não clica nem digita nada. Precisa do worker local online.
+              </p>
             </Card>
 
             <Card title="Coletor em nuvem" badge="experimental">
