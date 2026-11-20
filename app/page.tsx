@@ -4,6 +4,7 @@ import { AutoRefresh } from "./auto-refresh";
 import { PageHeader, NavLink } from "./components/PageHeader";
 import { StatusPill } from "./components/StatusPill";
 import { formatDate, relativeTime, type StatusKind } from "@/lib/ui";
+import { getAlerts } from "@/lib/alerts";
 
 export const dynamic = "force-dynamic";
 
@@ -11,13 +12,14 @@ const AGENTS = ["coletor", "marketing", "vendas", "gerente"] as const;
 const WORKER_ONLINE_THRESHOLD_MS = 35_000;
 
 export default async function Home() {
-  const [orders, runs, latestSnapshot, reports, cloudSettings, workerHeartbeat] = await Promise.all([
+  const [orders, runs, latestSnapshot, reports, cloudSettings, workerHeartbeat, alerts] = await Promise.all([
     prisma.order.findMany({ orderBy: { createdAt: "desc" }, take: 15 }),
     prisma.run.findMany({ orderBy: { startedAt: "desc" }, take: 10 }),
     prisma.snapshot.findFirst({ orderBy: { createdAt: "desc" } }),
     prisma.report.findMany({ orderBy: { createdAt: "desc" }, take: 12 }),
     prisma.cloudSettings.findUnique({ where: { id: 1 } }),
     prisma.workerHeartbeat.findUnique({ where: { target: "local" } }),
+    getAlerts(),
   ]);
 
   const workerOnline =
@@ -47,6 +49,9 @@ export default async function Home() {
             <span className={`h-2 w-2 rounded-full ${workerOnline ? "bg-emerald-400" : "bg-neutral-600"}`} />
             Worker local {workerOnline ? "online" : "offline"}
           </span>
+          <NavLink href="/alertas" badge={alerts.items.length}>
+            Alertas
+          </NavLink>
           <NavLink href="/evolucao">Evolução</NavLink>
           <NavLink href="/reuniao">Reunião</NavLink>
           <NavLink href="/rotinas">Rotinas</NavLink>

@@ -26,13 +26,26 @@ export function PageHeader({
   );
 }
 
-export function NavLink({ href, children }: { href: string; children: ReactNode }) {
+export function NavLink({
+  href,
+  badge,
+  children,
+}: {
+  href: string;
+  badge?: number;
+  children: ReactNode;
+}) {
   return (
     <Link
       href={href}
-      className="rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 transition-colors hover:border-neutral-600 hover:bg-neutral-900"
+      className="inline-flex items-center gap-1.5 rounded-md border border-neutral-700 px-3 py-1.5 text-sm text-neutral-300 transition-colors hover:border-neutral-600 hover:bg-neutral-900"
     >
       {children}
+      {!!badge && (
+        <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
+          {badge}
+        </span>
+      )}
     </Link>
   );
 }
