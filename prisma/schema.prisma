@@ -3,8 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // migrate deploy usa esta pra acquire do advisory lock — a DATABASE_URL normal
+  // aponta pro endpoint "-pooler" do Neon, que não segura lock de sessão de forma
+  // confiável (é isso que causava os P1002 "timed out trying to acquire a postgres
+  // advisory lock"). Aponte DIRECT_DATABASE_URL pro mesmo banco, só sem "-pooler"
+  // no host.
+  directUrl = env("DIRECT_DATABASE_URL")
 }
 
 enum OrderStatus {
