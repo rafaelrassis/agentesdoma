@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { convocarReuniao } from "../actions";
 import { AppShell } from "../components/AppShell";
 import { Button, Card } from "../components/ui";
+import { StatusPill } from "../components/StatusPill";
 import { dash, formatDate, relativeTime } from "@/lib/ui";
 
 export const dynamic = "force-dynamic";
@@ -35,11 +36,12 @@ function Fala({
 }
 
 export default async function Reuniao() {
-  const [latestSnapshot, vendasReport, marketingReport, planoReport] = await Promise.all([
+  const [latestSnapshot, vendasReport, marketingReport, planoReport, ultimaConvocacao] = await Promise.all([
     prisma.snapshot.findFirst({ orderBy: { createdAt: "desc" } }),
     prisma.report.findFirst({ where: { agent: "vendas" }, orderBy: { createdAt: "desc" } }),
     prisma.report.findFirst({ where: { agent: "marketing" }, orderBy: { createdAt: "desc" } }),
     prisma.report.findFirst({ where: { agent: "gerente" }, orderBy: { createdAt: "desc" } }),
+    prisma.order.findFirst({ where: { agent: "gerente" }, orderBy: { createdAt: "desc" } }),
   ]);
 
   const snapshotData = latestSnapshot?.data as Record<string, any> | undefined;
@@ -67,6 +69,23 @@ export default async function Reuniao() {
               marketing em paralelo, e escreve o plano. Mesma fila de &ldquo;Nova ordem&rdquo;.
             </span>
           </form>
+          {ultimaConvocacao && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line pt-3 text-xs text-ink-faint">
+              <span>Última convocação ({ultimaConvocacao.target}):</span>
+              <StatusPill status={ultimaConvocacao.status} />
+              <span title={formatDate(ultimaConvocacao.createdAt) ?? undefined}>
+                {relativeTime(ultimaConvocacao.createdAt)}
+              </span>
+              {ultimaConvocacao.status === "pending" && (
+                <span>
+                  — na fila, esperando o worker {ultimaConvocacao.target === "local" ? "local (confira se está online)" : "cloud"} pegar.
+                </span>
+              )}
+              {ultimaConvocacao.status === "failed" && ultimaConvocacao.result && (
+                <span className="text-fail-fg">— falhou: {ultimaConvocacao.result.slice(0, 160)}</span>
+              )}
+            </div>
+          )}
         </Card>
 
         <section className="flex flex-col gap-3">
